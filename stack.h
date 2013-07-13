@@ -78,12 +78,14 @@ bool stack<T>::try_pop(T & data) {
         }
 
         if (m_head.compare_exchange_strong(old_head, node_ptr->m_next)) {
+            // The following copy assignment may thow while the head has already
+            // been popped from the stack. So there is no strong exception safety
+            // guarantee.
             data = node_ptr->m_data;
 
-            int count_increase = old_head.m_external_count - 2;
+            int users_left = old_head.m_external_count - 2;
 
-
-            if (node_ptr->m_internal_count.fetch_add(count_increase) == -count_increase) {
+            if (node_ptr->m_internal_count.fetch_add(users_left) == -users_left) {
                 delete node_ptr;
             }
 
