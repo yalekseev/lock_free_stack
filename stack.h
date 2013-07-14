@@ -1,3 +1,6 @@
+#ifndef STACK_H
+#define STACK_H
+
 #include <atomic>
 #include <memory>
 
@@ -136,3 +139,5 @@ typename stack<T>::counted_node_type stack<T>::get_head() {
 }
 
 } // namespace lock_free
+
+#endif
