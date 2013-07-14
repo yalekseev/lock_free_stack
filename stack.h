@@ -61,10 +61,7 @@ stack<T>::stack() {
 
 template <typename T>
 stack<T>::~stack() {
-    T data;
-    while (try_pop(data)) {
-        ;
-    }
+    unsafe_clear();
 }
 
 template <typename T>
