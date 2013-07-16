@@ -17,9 +17,13 @@ private:
     };
 
     struct node_type {
-        explicit node_type(const T & data) : m_data(data), m_internal_count(0) { }
+        node_type() = delete;
 
+        explicit node_type(const T & data) : m_data(data), m_internal_count(0) { }
         explicit node_type(T && data) : m_data(data), m_internal_count(0) { }
+
+        node_type(const node_type & other) = delete;
+        node_type & operator=(const node_type & other) = delete;
 
         T m_data;
         std::atomic<int> m_internal_count;
