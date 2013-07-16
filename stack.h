@@ -19,6 +19,8 @@ private:
     struct node_type {
         explicit node_type(const T & data) : m_data(data), m_internal_count(0) { }
 
+        explicit node_type(T && data) : m_data(data), m_internal_count(0) { }
+
         T m_data;
         std::atomic<int> m_internal_count;
         counted_node_type m_next;
@@ -31,8 +33,11 @@ public:
     stack(const stack & other) = delete;
     stack & operator=(const stack & other) = delete;
 
-    /*! \brief Add element to stack. */
+    /*! \brief Add (copy) element to stack. */
     void push(const T & data);
+
+    /*! \brief Add (move) element to stack. */
+    void push(T && data);
 
     /*!
         \brief Take the most recently added element from stack. Return true if
@@ -88,6 +93,16 @@ void stack<T>::unsafe_clear() {
 
 template <typename T>
 void stack<T>::push(const T & data) {
+    counted_node_type new_node;
+    new_node.m_node_ptr = new node_type(data);
+    new_node.m_external_count = 1;
+    new_node.m_node_ptr->m_next = m_head.load();
+
+    while (!m_head.compare_exchange_weak(new_node.m_node_ptr->m_next, new_node)) { ; }
+}
+
+template <typename T>
+void stack<T>::push(T && data) {
     counted_node_type new_node;
     new_node.m_node_ptr = new node_type(data);
     new_node.m_external_count = 1;
